@@ -12,11 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,16 +26,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import kotlinx.coroutines.launch
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import pe.idat.proyecto.R
-import pe.idat.proyecto.model.Producto
-import pe.idat.proyecto.model.productList
+import pe.idat.proyecto.SetupViewModel
+import pe.idat.proyecto.data.network.response.Producto
 import pe.idat.proyecto.navigation.Routes
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController,viewModel: SetupViewModel) {
+
+    val productos by viewModel.lista.collectAsState()
+
     Scaffold(
         topBar = { HomeCabecera() },
         content = { innerPadding ->
@@ -52,8 +52,8 @@ fun HomeScreen(navController: NavController) {
                     contentPadding = PaddingValues(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(productList) { product ->
-                        ProductCardRow(imageRes = product.imagenRes)
+                    items(productos) { product ->
+                        ProductCardRow(product.image)
                     }
                 }
                 LazyColumn(
@@ -61,8 +61,8 @@ fun HomeScreen(navController: NavController) {
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(productList) { product ->
-                        ProductCardColumn(product = product)
+                    items(productos) { product ->
+                        ProductCardColumn(product)
                     }
                 }
             }
@@ -189,9 +189,9 @@ fun HomeCabecera() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductCardRow(imageRes: Int) {
+fun ProductCardRow(imageUrl: String) {
+    val fullImageUrl = "http://10.0.2.2:8080/productos/uploads/$imageUrl"
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -200,7 +200,7 @@ fun ProductCardRow(imageRes: Int) {
             .clip(RoundedCornerShape(8.dp))
     ) {
         Image(
-            painter = painterResource(id = imageRes),
+            painter = rememberAsyncImagePainter(model = fullImageUrl),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -208,9 +208,9 @@ fun ProductCardRow(imageRes: Int) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductCardColumn(product: Producto) {
+    val fullImageUrl = "http://10.0.2.2:8080/productos/uploads/${product.image}"
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -225,7 +225,7 @@ fun ProductCardColumn(product: Producto) {
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
             Image(
-                painter = painterResource(id = product.imagenRes),
+                painter = rememberAsyncImagePainter(model = fullImageUrl),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

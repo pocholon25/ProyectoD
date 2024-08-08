@@ -36,7 +36,7 @@ fun ComprasScreen(navController: NavController) {
             ) {
                 // Replace this with the actual list of purchases
                 items(compraList) { compra ->
-                    CompraCard(compra = compra)
+                    CompraCard(compra)
                 }
             }
         }

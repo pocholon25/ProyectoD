@@ -8,12 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,13 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import pe.idat.proyecto.R
-import pe.idat.proyecto.model.Producto
-import pe.idat.proyecto.model.favoriteList
-import pe.idat.proyecto.model.productList
+import pe.idat.proyecto.SetupViewModel
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun FavoritosScreen(navController: NavController, initialIndex: Int) {
+fun FavoritosScreen(navController: NavController, initialIndex: Int, viewModel: SetupViewModel) {
+    val productos by viewModel.lista.collectAsState()
+
     Scaffold(
         topBar = { FavoritosCabecera(navController) },
         content = { innerPadding ->
@@ -38,8 +36,8 @@ fun FavoritosScreen(navController: NavController, initialIndex: Int) {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(favoriteList) { favorite ->
-                    ProductCardColumn(product = favorite)
+                items(productos) { product ->
+                    ProductCardColumn(product = product)
                 }
             }
         },

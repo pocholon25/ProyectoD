@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "545118666781",
+    "project_id": "proyectod-f5c32",
+    "storage_bucket": "proyectod-f5c32.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545118666781:android:f72d79b573ce75cd3486f4",
+        "android_client_info": {
+          "package_name": "pe.idat.proyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTnxc1MnOEW12jMYyKRAlrjCtktBRHYS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

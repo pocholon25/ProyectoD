@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
@@ -51,10 +50,9 @@ class MainActivity : ComponentActivity() {
             composable(
                 route = Routes.Favorite.route,
                 arguments = listOf(navArgument("selectedIndex") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val selectedIndex = backStackEntry.arguments?.getInt("selectedIndex") ?: 0
+            ) {
                 val viewModel: SetupViewModel = hiltViewModel()
-                FavoritosScreen(navController, selectedIndex, viewModel)
+                FavoritosScreen(navController,viewModel)
             }
             composable(Routes.Perfil.route) { PerfilScreen(navController) }
             composable(Routes.Compras.route) { ComprasScreen(navController) }

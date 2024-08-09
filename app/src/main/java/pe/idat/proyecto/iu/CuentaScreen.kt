@@ -27,11 +27,10 @@ import pe.idat.proyecto.navigation.Routes
 fun CuentaScreen(navController: NavController) {
     var nombre by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var phoneNumber by rememberSaveable { mutableStateOf("") }
+    var celular by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
 
     Box(
         modifier = Modifier
@@ -83,8 +82,8 @@ fun CuentaScreen(navController: NavController) {
             )
 
             OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
+                value = celular,
+                onValueChange = { celular = it },
                 label = { Text("Celular") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,22 +99,6 @@ fun CuentaScreen(navController: NavController) {
                     val icon = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(imageVector = icon, contentDescription = "password visibility")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val icon = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
-                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "confirm password visibility")
                     }
                 },
                 modifier = Modifier

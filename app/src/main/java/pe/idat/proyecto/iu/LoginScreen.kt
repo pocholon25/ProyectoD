@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,21 +39,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import pe.idat.proyecto.R
 import pe.idat.proyecto.SetupViewModel
 import pe.idat.proyecto.navigation.Routes
-import androidx.compose.runtime.livedata.observeAsState
-import pe.idat.proyecto.EstadoLogin
 
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: SetupViewModel) {
-    var usuario by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val loginState by viewModel.estadoLogin.observeAsState()
+    val loginResponse by viewModel.loginResponse.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
 
@@ -88,8 +86,8 @@ fun LoginScreen(navController: NavController, viewModel: SetupViewModel) {
             )
 
             OutlinedTextField(
-                value = usuario,
-                onValueChange = { usuario = it },
+                value = nombre,
+                onValueChange = { nombre = it },
                 label = { Text("Usuario") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,7 +111,7 @@ fun LoginScreen(navController: NavController, viewModel: SetupViewModel) {
             )
 
             Button(
-                onClick = { viewModel.login(usuario,password) },
+                onClick = { viewModel.login(nombre,password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -135,17 +133,18 @@ fun LoginScreen(navController: NavController, viewModel: SetupViewModel) {
                 Text(text = "Registrate aquí")
             }
 
-            LaunchedEffect(loginState) {
-                if(loginState is EstadoLogin.Success){
-                    navController.navigate(Routes.Home.route){
-                        popUpTo(Routes.Login.route){inclusive=true}
+            LaunchedEffect(loginResponse) {
+                loginResponse?.let { response ->
+                    if (response.success) {
+                        navController.navigate(Routes.Home.route) {
+                            popUpTo(Routes.Login.route) { inclusive = true }
+                        }
+                    } else {
+                        snackbarHostState.showSnackbar(
+                            message = response.mensaje,
+                            actionLabel = "OK"
+                        )
                     }
-                }else if (loginState is EstadoLogin.Error){
-                    val message = (loginState as EstadoLogin.Error).message
-                    snackbarHostState.showSnackbar(
-                        message=message,
-                        actionLabel = "OK"
-                    )
                 }
             }
             SnackbarHost(hostState = snackbarHostState)

@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,14 +22,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import pe.idat.proyecto.R
 import pe.idat.proyecto.SetupViewModel
 import pe.idat.proyecto.data.network.response.Producto
@@ -37,7 +37,7 @@ import pe.idat.proyecto.navigation.Routes
 @Composable
 fun HomeScreen(navController: NavController,viewModel: SetupViewModel) {
 
-    val productos by viewModel.lista.collectAsState()
+    val productos by viewModel.listaProductos.collectAsState()
 
     Scaffold(
         topBar = { HomeCabecera() },
@@ -164,7 +164,7 @@ fun HomeCabecera() {
         navigationIcon = {
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "",
                     tint = Color.Red
                 )
@@ -180,7 +180,7 @@ fun HomeCabecera() {
             }
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
-                    imageVector = Icons.Filled.ExitToApp,
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                     contentDescription = "",
                     tint = Color.Red
                 )

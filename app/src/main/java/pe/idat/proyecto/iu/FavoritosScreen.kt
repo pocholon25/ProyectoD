@@ -1,6 +1,7 @@
 package pe.idat.proyecto.iu
 
 import android.annotation.SuppressLint
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,16 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import pe.idat.proyecto.R
 import pe.idat.proyecto.SetupViewModel
+import pe.idat.proyecto.auth.UserCrendentialsManager
 import pe.idat.proyecto.data.network.response.Promocion
-
+import pe.idat.proyecto.navigation.Routes
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -38,7 +42,7 @@ fun FavoritosScreen(navController: NavController, viewModel: SetupViewModel) {
     val promociones by viewModel.listaPromociones.collectAsState()
 
     Scaffold(
-        topBar = { FavoritosCabecera(navController) },
+        topBar = { FavoritosCabecera(navController,viewModel) },
         content = { innerPadding ->
             LazyColumn(
                 modifier = Modifier
@@ -54,13 +58,26 @@ fun FavoritosScreen(navController: NavController, viewModel: SetupViewModel) {
         },
         bottomBar = { HomePie(navController) },
         modifier = Modifier.padding(WindowInsets.statusBars.asPaddingValues())
-
     )
 }
 fun Promocion.imageUrl(): String = "http://10.0.2.2:8080/promociones/uploads/$image"
 @Composable
 fun PromoCardColumn(promocion: Promocion) {
     val imageUrl = promocion.imageUrl() // Asumiendo que ya tienes la función imageUrl()
+
+    val credentials = UserCrendentialsManager.getCredentials()
+    val authHeader = credentials?.let {
+        "Basic ${Base64.encodeToString("${it.nombre}:${it.password}".toByteArray(), Base64.NO_WRAP)}"
+    }
+    val request = ImageRequest.Builder(LocalContext.current)
+        .data(imageUrl)
+        .apply {
+            authHeader?.let {
+                addHeader("Authorization",it)
+            }
+        }
+        .build()
+
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -75,7 +92,7 @@ fun PromoCardColumn(promocion: Promocion) {
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
             Image(
-                painter = rememberAsyncImagePainter(model = imageUrl),
+                painter = rememberAsyncImagePainter(model = request),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -130,7 +147,7 @@ fun PromoCardColumn(promocion: Promocion) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritosCabecera(navController: NavController) {
+fun FavoritosCabecera(navController: NavController,viewModel: SetupViewModel) {
     TopAppBar(
         title = {
             Text(
@@ -162,7 +179,12 @@ fun FavoritosCabecera(navController: NavController) {
                     tint = Color.Red
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+                viewModel.logoutUser()
+                navController.navigate(Routes.Login.route) {
+                    popUpTo(Routes.Home.route) { inclusive = true }
+                }
+            }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                     contentDescription = "",

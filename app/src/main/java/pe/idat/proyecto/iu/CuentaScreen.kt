@@ -1,5 +1,6 @@
 package pe.idat.proyecto.iu
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,17 +21,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 import pe.idat.proyecto.R
+import pe.idat.proyecto.SetupViewModel
 import pe.idat.proyecto.navigation.Routes
 
 @Composable
-fun CuentaScreen(navController: NavController) {
+fun CuentaScreen(navController: NavController,viewModel: SetupViewModel) {
     var nombre by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var celular by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val registerResponse by viewModel.registerResponse.collectAsState()
 
     Box(
         modifier = Modifier
@@ -107,7 +111,9 @@ fun CuentaScreen(navController: NavController) {
             )
 
             Button(
-                onClick = { /* Handle sign up */ },
+                onClick = {
+                    viewModel.registerUser(nombre, email, celular, password)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -115,7 +121,20 @@ fun CuentaScreen(navController: NavController) {
             ) {
                 Text(text = "Registrar")
             }
-
+            registerResponse?.let { response ->
+                Text(
+                    text = "Registro exitoso ${response.nombre}!!!",
+                    color = Color.Blue,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                LaunchedEffect(registerResponse) {
+                    if (registerResponse != null) {
+                        Log.d("CuentaScreen", "Navigating to Login screen")
+                        delay(3000)
+                        navController.navigate(Routes.Login.route)
+                    }
+                }
+            }
             TextButton(
                 onClick = { navController.navigate(Routes.Login.route)}
             ) {

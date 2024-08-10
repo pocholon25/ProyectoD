@@ -43,7 +43,8 @@ class MainActivity : ComponentActivity() {
             composable(Routes.Login.route){
                 val viewModel: SetupViewModel = hiltViewModel()
                 LoginScreen(navController, viewModel = viewModel)}
-            composable(Routes.Register.route){ CuentaScreen(navController)}
+            composable(Routes.Register.route){ val viewModel: SetupViewModel = hiltViewModel()
+                CuentaScreen(navController,viewModel)}
             composable(Routes.ForgotPassword.route){ RecuperarScreen(navController)}
             composable(Routes.Home.route){ val viewModel: SetupViewModel = hiltViewModel()
                 HomeScreen(navController, viewModel) }

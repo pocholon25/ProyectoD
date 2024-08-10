@@ -1,6 +1,7 @@
 package pe.idat.proyecto.iu
 
 import android.annotation.SuppressLint
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -21,15 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import pe.idat.proyecto.R
 import pe.idat.proyecto.SetupViewModel
+import pe.idat.proyecto.auth.UserCrendentialsManager
 import pe.idat.proyecto.data.network.response.Producto
 import pe.idat.proyecto.navigation.Routes
 
@@ -40,7 +45,7 @@ fun HomeScreen(navController: NavController,viewModel: SetupViewModel) {
     val productos by viewModel.listaProductos.collectAsState()
 
     Scaffold(
-        topBar = { HomeCabecera() },
+        topBar = { HomeCabecera(navController,viewModel) },
         content = { innerPadding ->
             Column(
                 modifier = Modifier
@@ -146,7 +151,7 @@ fun HomePie(navController: NavController) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeCabecera() {
+fun HomeCabecera(navController: NavController, viewModel: SetupViewModel) {
     TopAppBar(
         title = {
             Text(
@@ -171,14 +176,21 @@ fun HomeCabecera() {
             }
         },
         actions = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+                navController.navigate(Routes.Compras.route)
+            }) {
                 Icon(
                     imageVector = Icons.Filled.ShoppingCart,
                     contentDescription = "",
                     tint = Color.Red
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+                viewModel.logoutUser()
+                navController.navigate(Routes.Login.route) {
+                    popUpTo(Routes.Home.route) { inclusive = true }
+                }
+            }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                     contentDescription = "",
@@ -192,6 +204,19 @@ fun HomeCabecera() {
 @Composable
 fun ProductCardRow(imageUrl: String) {
     val fullImageUrl = "http://10.0.2.2:8080/productos/uploads/$imageUrl"
+
+    val credentials = UserCrendentialsManager.getCredentials()
+    val authHeader = credentials?.let {
+        "Basic ${Base64.encodeToString("${it.nombre}:${it.password}".toByteArray(),Base64.NO_WRAP)}"
+    }
+    val request = ImageRequest.Builder(LocalContext.current)
+        .data(fullImageUrl)
+        .apply {
+            authHeader?.let {
+                addHeader("Authorization", it)
+            }
+        }
+        .build()
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -200,7 +225,7 @@ fun ProductCardRow(imageUrl: String) {
             .clip(RoundedCornerShape(8.dp))
     ) {
         Image(
-            painter = rememberAsyncImagePainter(model = fullImageUrl),
+            painter = rememberAsyncImagePainter(model = request),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -211,6 +236,21 @@ fun ProductCardRow(imageUrl: String) {
 @Composable
 fun ProductCardColumn(product: Producto) {
     val fullImageUrl = "http://10.0.2.2:8080/productos/uploads/${product.image}"
+
+    val credentials = UserCrendentialsManager.getCredentials()
+    val authHeader = credentials?.let {
+        "Basic ${Base64.encodeToString("${it.nombre}:${it.password}".toByteArray(), Base64.NO_WRAP)}"
+    }
+
+    // Construye la solicitud de imagen con la cabecera de autenticación
+    val request = ImageRequest.Builder(LocalContext.current)
+        .data(fullImageUrl)
+        .apply {
+            authHeader?.let {
+                addHeader("Authorization", it)
+            }
+        }
+        .build()
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -225,9 +265,13 @@ fun ProductCardColumn(product: Producto) {
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
             Image(
-                painter = rememberAsyncImagePainter(model = fullImageUrl),
+                painter = rememberAsyncImagePainter(
+                    model = request,
+                    error = painterResource(id = R.drawable.ic_launcher_foreground),
+                    placeholder = painterResource(id = R.drawable.logo),
+                    contentScale = ContentScale.Crop
+                ),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(8.dp))

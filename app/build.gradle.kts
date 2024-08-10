@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.converter.gson)
     //dagger y complilador
     implementation(libs.hilt.android)
+    implementation(libs.androidx.tracing.perfetto.handshake)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
